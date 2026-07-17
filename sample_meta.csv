@@ -1,0 +1,17 @@
+individual_tube_id,pool_type,donor,sex,age,HTO_antibody
+A,Nil pool,ND518,female,37,A0251
+B,vehicle pool,ND518,female,37,A0251
+C,luc pool,ND518,female,37,A0251
+D,tat pool,ND518,female,37,A0251
+E,Nil pool,ND569,female,32,A0252
+F,vehicle pool,ND569,female,32,A0252
+G,luc pool,ND569,female,32,A0252
+H,tat pool,ND569,female,32,A0252
+I,Nil pool,ND317,male,40,A0253
+J,vehicle pool,ND317,male,40,A0253
+K,luc pool,ND317,male,40,A0253
+L,tat pool,ND317,male,40,A0253
+M,Nil pool,ND539,male,38,A0254
+N,vehicle pool,ND539,male,38,A0254
+O,luc pool,ND539,male,38,A0254
+P,tat pool,ND539,male,38,A0254

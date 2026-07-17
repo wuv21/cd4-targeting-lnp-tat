@@ -1,0 +1,17 @@
+tube_ID,pool_type,chip
+1A,Nil pool,1
+1B,Nil pool,1
+1C,Nil pool,1
+1D,Nil pool,1
+2A,vehicle pool,1
+2B,vehicle pool,1
+2C,vehicle pool,1
+2D,vehicle pool,1
+3A,luc pool,2
+3B,luc pool,2
+3C,luc pool,2
+3D,luc pool,2
+4A,tat pool,2
+4B,tat pool,2
+4C,tat pool,2
+4D,tat pool,2
