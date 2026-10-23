@@ -231,17 +231,21 @@ BASELINEWIDTH <- 12/14
 
 umapTheme <- theme(
   legend.position = "bottom",
-  legend.text = element_text(size = BASEPTFONTSIZE - 4),
+  legend.justification = "center",
+  legend.spacing.x = unit(3, 'pt'),
+  legend.text = element_text(size = BASEPTFONTSIZE - 2),
   legend.title = element_blank(),
-  axis.title = element_text(size = BASEPTFONTSIZE - 2, color = "#000000"),
+  # axis.title = element_text(size = BASEPTFONTSIZE - 2, color = "#000000"),
+  axis.title = element_blank(),
   axis.text = element_blank(),
   axis.ticks = element_blank(),
   panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(),
   axis.line = element_line(linewidth = BASELINEWIDTH, color = "#000000"),
   plot.margin = margin(t = 0, b = 0, l = 3, r = 3),
-  plot.title = element_text(size = BASEPTFONTSIZE - 2, color = "#000000", face = "plain"),
-  legend.key.size = unit(BASEPTFONTSIZE, 'points'),
+  plot.title = element_text(size = BASEPTFONTSIZE - 2, color = "#000000", face = "plain", margin = margin(b = -2)),
+  legend.key.size = unit(BASEPTFONTSIZE - 4, 'points'),
+  legend.key.spacing.y = unit(BASEPTFONTSIZE - 6, "points"),
   legend.background = element_rect(fill = "transparent", colour = NA))
 
 fig1A <- DimPlot(seuMerged, group.by = "pool_type") + umapTheme +
@@ -252,19 +256,16 @@ fig1B <- DimPlot(seuMerged, group.by = "donor") + umapTheme +
   labs(x = "UMAP_1", y = "UMAP_2", title = "Donor") +
   guides(color = guide_legend(nrow = 2))
 
-
 fig1C <- DimPlot(seuMerged, group.by = "predicted.celltype.l1") + umapTheme +
   labs(x = "UMAP_1", y = "UMAP_2", title = "Cell type") +
   guides(color = guide_legend(nrow = 4))
 
-fig1 <- fig1A + fig1B + fig1C + 
-  plot_layout(nrow = 1, axis_titles = "collect") &
-  theme(
-    legend.position = "bottom",
-    legend.justification = "center",
-    legend.spacing.x = unit(3, 'pt'),
-    legend.margin = margin(t = -10),
-    axis.title = element_blank())
+# fig1 <- fig1A + fig1B + fig1C + 
+#   plot_layout(nrow = 1, axis_titles = "collect") &
+#   theme(
+#     legend.position = "bottom",
+#     legend.margin = margin(t = -10),
+#     axis.title = element_blank())
 
 
 # fig 2
@@ -273,6 +274,20 @@ tatVsLuc <- FindMarkers(
   subset(seuMerged, subset = predicted.celltype.l1 == "CD4 T" & predicted.celltype.l1.score >= 0.9),
   ident.1 = "Ib-Tat",
   ident.2 = "Ib-Luc",
+  min.pct = 0.3
+)
+
+tmpForJilian <- FindMarkers(
+  subset(seuMerged, subset = predicted.celltype.l1 == "CD4 T" & predicted.celltype.l1.score >= 0.9),
+  ident.1 = "Ib-Luc",
+  ident.2 = "N/A",
+  min.pct = 0.3
+)
+
+tmpForJilianMono <- FindMarkers(
+  subset(seuMerged, subset = predicted.celltype.l1 == "Mono" & predicted.celltype.l1.score >= 0.9),
+  ident.1 = "Ib-Luc",
+  ident.2 = "N/A",
   min.pct = 0.3
 )
 
@@ -327,11 +342,12 @@ activationGoi <- c("JUNB", "FOS", "LCK", "MYC", "RELA", "NFKB1")
 fig3 <- VlnPlot(seuMerged,
   features = activationGoi,
   group.by = "pool_type", ncol = 2, pt.size = 0.1, alpha = 0.01) +
-  plot_layout(axis_titles = "collect") &
+  plot_layout(axis_titles = "collect", axes = "collect_x") &
   theme(
     plot.margin = margin(t = 2, b = 2, l = 5, r = 5),
     axis.line = element_line(linewidth = BASELINEWIDTH, color = "#000000"),
-    plot.title = element_text(color = "#000000", size = BASEPTFONTSIZE - 2, face = "plain"),
+    axis.line.x = element_line(color = "#000000", linewidth = BASELINEWIDTH),
+    plot.title = element_text(color = "#000000", size = BASEPTFONTSIZE - 2, face = "plain", margin = margin(b = -2)),
     axis.text = element_text(color = "#000000", size = BASEPTFONTSIZE - 2),
     axis.title = element_text(color = "#000000", size = BASEPTFONTSIZE - 2),
     axis.title.x = element_blank()
@@ -350,7 +366,7 @@ FindMarkers(
 supFig <- VlnPlot(seuMerged,
   features = c("CCR5", "HLA-DRA", "CD69", "IL2RA", "PDCD1"),
   group.by = "pool_type", ncol = 2, pt.size = 0.1, alpha = 0.01) +
-  plot_layout(axis_titles = "collect") &
+  plot_layout(axis_titles = "collect", axes = "collect") &
   theme(
     plot.margin = margin(t = 2, b = 2, l = 5, r = 5),
     axis.line = element_line(linewidth = BASELINEWIDTH, color = "#000000"),
@@ -360,24 +376,87 @@ supFig <- VlnPlot(seuMerged,
     axis.title.x = element_blank()
   )
 
+# layout <- c(
+#   area(1, 1, 2, 3), # umap
+#   area(1, 4, 3, 9), # tracks
+#   area(3, 1, 4, 3), # vln plot
+#   area(5, 1, 6, 3), # deg volcano 72 hrs
+#   area(4, 4, 6, 9) # dot plot
+# )
+# 
+# top_half_p <- list(
+#   "A" = figA,
+#   "B" = fig2TrackFinal,
+#   "C" = fig2C,
+#   "D" = fig2d
+# )
+# saveRDS(top_half_p, "outs/rds/fig3_tophalf.rds")
+# 
+# final_p <- patchwork::free(figA, side = "trb") + 
+#   patchwork::free(fig2TrackFinal, side = "lr") +
+#   patchwork::free(fig2C, side = "trb") +
+#   patchwork::free(fig2d, side = "trb") +
+#   figDotPlotApop +
+#   plot_layout(design = layout) + 
+#   plot_annotation(tag_levels = list(c("A", "B", "C", "D", "E"))) &
+#   theme(plot.tag = element_text(size = 10, color = "#000000", face = "plain"))
+# 
+# 
+# savePlot(plot = final_p, fn = "fig2", devices = c("png", "pdf"), gwidth = 8, gheight = 5)
+
+top_half <- readRDS("/data/tat_multiome/tat_multiome_early_analysis/outs/rds/fig3_tophalf.rds")
+
 layout <- c(
-  area(1, 1, 2, 4), # umap
-  area(1, 5, 8, 9), # deg heatmap
-  area(3, 1, 8, 4) # goi
+  area(1, 1, 2, 6), # umap
+  area(1, 7, 3, 18), # tracks
+  area(3, 1, 4, 6), # vln plot
+  area(5, 1, 6, 6), # deg volcano 72 hrs
+  area(4, 7, 6, 18), # dot plot
+  area(7, 1, 9, 9), # umap
+  # area(7, 4, 9, 6), # umap
+  # area(7, 7, 9, 8), # umap
+  area(7, 10, 13, 18), # deg heatmap
+  area(10, 1, 13, 9) # goi
 )
 
-
-final_p <- free(fig1, side = "b") + 
+final_p <- patchwork::free(top_half[["A"]] + theme(axis), side = "trb") + 
+  patchwork::free(top_half[["B"]], side = "lr") +
+  patchwork::free(top_half[["C"]], side = "trb") +
+  patchwork::free(top_half[["D"]] + theme(legend.position = "blank"), side = "trb") +
+  patchwork::free(top_half[["E"]], side = "tlrb") +
+  patchwork::free(fig1A + fig1B + fig1C & theme(legend.box.margin = margin(t = -10, b = 5)), side = "trb") +
   wrap_elements(
     panel = grid.grabExpr(ComplexHeatmap::draw(
       fig2,
       heatmap_legend_side = "bottom",
       annotation_legend_side = "bottom",
-      merge_legend = TRUE))
+      merge_legend = TRUE,
+      padding = unit(c(0, 2, 0, 2), "mm")))
   ) +
-  free(fig3, side = "tblr") +
-  plot_layout(design = layout) + 
-  plot_annotation(tag_levels = list(c("E", "F", "G", "H", "I"))) &
+  patchwork::free(fig3, side = "tblr") +
+  plot_layout(design = layout) +
+  plot_annotation(tag_levels = list(c("A", "B", "C", "D", "E", "F", "", "", "G", "H", "", "", "", "", ""))) &
   theme(plot.tag = element_text(size = 10, color = "#000000", face = "plain"))
 
-savePlot(plot = final_p, fn = "fig3", devices = c("png", "pdf"), gwidth = 8, gheight = 5)
+savePlot(plot = final_p, fn = "fig3_complete", devices = c("png", "pdf"), gwidth = 8, gheight = 10.2)
+
+
+# layout <- c(
+#   area(1, 1, 2, 4), # umap
+#   area(1, 5, 8, 9), # deg heatmap
+#   area(3, 1, 8, 4) # goi
+# )
+
+# final_p <- free(fig1, side = "b") + 
+#   wrap_elements(
+#     panel = grid.grabExpr(ComplexHeatmap::draw(
+#       fig2,
+#       heatmap_legend_side = "bottom",
+#       annotation_legend_side = "bottom",
+#       merge_legend = TRUE))
+#   ) +
+#   free(fig3, side = "tblr") +
+#   plot_layout(design = layout) + 
+#   plot_annotation(tag_levels = list(c("E", "F", "G", "H", "I"))) &
+#   theme(plot.tag = element_text(size = 10, color = "#000000", face = "plain"))
+
