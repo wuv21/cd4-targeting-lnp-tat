@@ -248,15 +248,15 @@ umapTheme <- theme(
   legend.key.spacing.y = unit(BASEPTFONTSIZE - 6, "points"),
   legend.background = element_rect(fill = "transparent", colour = NA))
 
-fig1A <- DimPlot(seuMerged, group.by = "pool_type") + umapTheme +
+fig1A <- DimPlot(seuMerged, group.by = "pool_type", raster = TRUE, raster.dpi = c(1024, 1024)) + umapTheme +
   labs(x = "UMAP_1", y = "UMAP_2", title = "Treatment") +
   guides(color = guide_legend(nrow = 2))
 
-fig1B <- DimPlot(seuMerged, group.by = "donor") + umapTheme +
+fig1B <- DimPlot(seuMerged, group.by = "donor", raster = TRUE, raster.dpi = c(1024, 1024)) + umapTheme +
   labs(x = "UMAP_1", y = "UMAP_2", title = "Donor") +
   guides(color = guide_legend(nrow = 2))
 
-fig1C <- DimPlot(seuMerged, group.by = "predicted.celltype.l1") + umapTheme +
+fig1C <- DimPlot(seuMerged, group.by = "predicted.celltype.l1", raster = TRUE, raster.dpi = c(1024, 1024)) + umapTheme +
   labs(x = "UMAP_1", y = "UMAP_2", title = "Cell type") +
   guides(color = guide_legend(nrow = 4))
 
@@ -341,7 +341,7 @@ activationGoi <- c("JUNB", "FOS", "LCK", "MYC", "RELA", "NFKB1")
 
 fig3 <- VlnPlot(seuMerged,
   features = activationGoi,
-  group.by = "pool_type", ncol = 2, pt.size = 0.1, alpha = 0.01) +
+  group.by = "pool_type", ncol = 2, pt.size = 0.1, alpha = 0.1, raster = FALSE) +
   plot_layout(axis_titles = "collect", axes = "collect_x") &
   theme(
     plot.margin = margin(t = 2, b = 2, l = 5, r = 5),
@@ -352,6 +352,14 @@ fig3 <- VlnPlot(seuMerged,
     axis.title = element_text(color = "#000000", size = BASEPTFONTSIZE - 2),
     axis.title.x = element_blank()
 )
+
+for (i in seq_along(activationGoi)) {
+  fig3[[i]] <- ggrastr::rasterize(fig3[[i]], layers = "jitter", dpi = 300)
+  fig3[[i]] <- ggrastr::rasterize(fig3[[i]], layers = "point", dpi = 300)
+  fig3[[i]]$layers <- rev(fig3[[i]]$layers)
+  fig3[[i]]$layers[[2]]$aes_params$alpha <- 0.7 
+}
+
 
 
 FindMarkers(
@@ -435,28 +443,8 @@ final_p <- patchwork::free(top_half[["A"]] + theme(axis), side = "trb") +
   ) +
   patchwork::free(fig3, side = "tblr") +
   plot_layout(design = layout) +
-  plot_annotation(tag_levels = list(c("A", "B", "C", "D", "E", "F", "", "", "G", "H", "", "", "", "", ""))) &
-  theme(plot.tag = element_text(size = 10, color = "#000000", face = "plain"))
+  plot_annotation(tag_levels = list(c("A)", "B)", "C)", "D)", "E)", "F)", "", "", "G)", "H)", "", "", "", "", ""))) &
+  theme(plot.tag = element_text(size = 10, color = "#000000", face = "bold"))
 
 savePlot(plot = final_p, fn = "fig3_complete", devices = c("png", "pdf"), gwidth = 8, gheight = 10.2)
-
-
-# layout <- c(
-#   area(1, 1, 2, 4), # umap
-#   area(1, 5, 8, 9), # deg heatmap
-#   area(3, 1, 8, 4) # goi
-# )
-
-# final_p <- free(fig1, side = "b") + 
-#   wrap_elements(
-#     panel = grid.grabExpr(ComplexHeatmap::draw(
-#       fig2,
-#       heatmap_legend_side = "bottom",
-#       annotation_legend_side = "bottom",
-#       merge_legend = TRUE))
-#   ) +
-#   free(fig3, side = "tblr") +
-#   plot_layout(design = layout) + 
-#   plot_annotation(tag_levels = list(c("E", "F", "G", "H", "I"))) &
-#   theme(plot.tag = element_text(size = 10, color = "#000000", face = "plain"))
 
